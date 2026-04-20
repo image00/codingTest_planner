@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>코딩테스트 복습 큐</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --acc:#4a7c59;--acc2:#5a9469;--acc-light:#e8f5ee;--acc-mid:#c8e6d4;
+  --bg:#fff;--bg2:#f7f7f5;--bg3:#f0f0ec;
+  --txt:#191919;--txt2:#6b6b6b;--txt3:#a0a0a0;
+  --bdr:#e5e5e2;--bdr2:#d4d4d0;
+  --easy:#d1fae5;--easy-t:#065f46;
+  --med:#fef3c7;--med-t:#92400e;
+  --hard:#fee2e2;--hard-t:#991b1b;
+  --r:8px;--r2:5px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt);margin:0;}
+
+/* TOP */
+.top{background:var(--acc);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.top-title{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:.04em;flex-shrink:0;}
+.stats{display:flex;gap:16px;align-items:center;}
+.stat{text-align:center;}
+.stat-val{font-size:18px;font-weight:600;color:white;line-height:1;}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.6);margin-top:2px;letter-spacing:.05em;}
+.stat-div{width:1px;height:28px;background:rgba(255,255,255,.2);}
+.top-right{display:flex;align-items:center;gap:10px;}
+.settings-btn{background:rgba(255,255,255,.15);border:none;border-radius:var(--r2);padding:7px 12px;font-size:12px;color:white;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;white-space:nowrap;}
+.settings-btn:hover{background:rgba(255,255,255,.25);}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);min-height:calc(100vh - 47px);}
+.col{padding:20px;border-right:1px solid var(--bdr);}
+.col:last-child{border-right:none;}
+.col-label{font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--txt3);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.col-dot{width:6px;height:6px;border-radius:50%;background:var(--acc);}
+.col-dot.red{background:#e24b4a;}
+
+/* SETTINGS PANEL */
+.settings-panel{display:none;background:var(--bg);border-bottom:1px solid var(--bdr);}
+.settings-inner{padding:20px 24px;max-width:900px;}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.settings-section{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;}
+.settings-section-title{font-size:12px;font-weight:600;color:var(--txt2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.st-dot{width:5px;height:5px;border-radius:50%;}
+.cat-edit-list{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;max-height:180px;overflow-y:auto;}
+.cat-edit-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r2);}
+.cat-color-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cat-edit-name{flex:1;font-size:13px;color:var(--txt);}
+.cat-edit-del{background:none;border:none;cursor:pointer;color:var(--txt3);font-size:14px;opacity:.5;padding:0 2px;}
+.cat-edit-del:hover{opacity:1;color:#e24b4a;}
+.add-cat-row{display:flex;gap:6px;}
+.add-cat-row input{flex:1;background:var(--bg);border:1px solid var(--bdr2);border-radius:var(--r2);padding:7px 10px;font-size:13px;color:var(--txt);outline:none;font-family:inherit;}
+.add-cat-row input:focus{border-color:var(--acc);}
+.color-picker-row{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
+.color-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .12s;}
+.color-swatch.sel{border-color:var(--txt);transform:scale(1.15);}
+.tag-edit-list{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;max-height:100px;overflow-y:auto;}
+.tag-edit-pill{display:inline-flex;align-items:center;gap:5px;background:#1e3a5f;color:#93c5fd;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;}
+.tag-edit-del{background:none;border:none;cursor:pointer;color:#93c5fd;font-size:13px;opacity:.6;line-height:1;padding:0;}
+.tag-edit-del:hover{opacity:1;}
+.settings-close{background:var(--acc);border:none;border-radius:var(--r2);padding:7px 16px;font-size:13px;color:white;cursor:pointer;font-family:inherit;margin-top:14px;}
+.add-btn-sm{background:var(--acc);border:none;border-radius:var(--r2);padding:7px 13px;font-size:13px;color:white;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.add-btn-sm:hover{background:var(--acc2);}
+
+/* ADD PROBLEM */
+.add-wrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:13px;margin-bottom:14px;}
+.add-row{display:flex;gap:7px;margin-bottom:9px;}
+.add-row:last-child{margin-bottom:0;}
+.inp{flex:1;background:var(--bg);border:1px solid var(--bdr2);border-radius:var(--r2);padding:8px 11px;font-size:13px;color:var(--txt);outline:none;font-family:inherit;}
+.inp::placeholder{color:var(--txt3);}
+.inp:focus{border-color:var(--acc);box-shadow:0 0 0 2px rgba(74,124,89,.1);}
+.sel{background:var(--bg);border:1px solid var(--bdr2);border-radius:var(--r2);padding:8px 10px;font-size:13px;color:var(--txt);outline:none;font-family:inherit;cursor:pointer;}
+.sel:focus{border-color:var(--acc);}
+.add-btn{background:var(--acc);border:none;border-radius:var(--r2);padding:8px 16px;font-size:13px;font-weight:500;color:white;cursor:pointer;font-family:inherit;}
+.add-btn:hover{background:var(--acc2);}
+
+/* CHIPS */
+.chips-row{display:flex;gap:5px;flex-wrap:wrap;}
+.chip{font-size:11px;padding:3px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--bdr2);color:var(--txt2);background:var(--bg);white-space:nowrap;transition:all .12s;font-family:inherit;}
+.chip:hover{border-color:var(--acc);color:var(--acc);}
+.chip.sel{color:white;border-color:transparent;}
+
+/* FILTER BAR */
+.fbar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.fchip{font-size:11px;padding:2px 9px;border-radius:20px;cursor:pointer;border:1px solid var(--bdr);color:var(--txt2);background:none;font-family:inherit;}
+.fchip:hover{border-color:var(--bdr2);}
+.fchip.on{font-weight:500;background:var(--acc-light);color:var(--acc);border-color:transparent;}
+.fbar-div{width:1px;height:14px;background:var(--bdr2);margin:0 2px;}
+
+/* PROBLEM LIST */
+.prob-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--r2);margin-bottom:3px;border:1px solid transparent;cursor:pointer;transition:all .1s;}
+.prob-item:hover{background:var(--bg2);border-color:var(--bdr);}
+.prob-item.selected{background:var(--acc-light);border-color:var(--acc-mid);}
+.prob-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt3);min-width:36px;flex-shrink:0;}
+.prob-title{flex:1;font-size:13px;font-weight:500;color:var(--txt);line-height:1.3;}
+.diff-badge{font-size:10px;padding:2px 7px;border-radius:20px;flex-shrink:0;font-weight:500;}
+.diff-easy{background:var(--easy);color:var(--easy-t);}
+.diff-med{background:var(--med);color:var(--med-t);}
+.diff-hard{background:var(--hard);color:var(--hard-t);}
+.cat-badge{font-size:10px;padding:2px 7px;border-radius:20px;flex-shrink:0;font-weight:500;}
+.acc-txt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt3);flex-shrink:0;min-width:30px;text-align:right;}
+.wrong-badge{font-size:10px;padding:2px 6px;border-radius:4px;background:#fee2e2;color:#991b1b;font-weight:500;flex-shrink:0;}
+.prob-del{background:none;border:none;cursor:pointer;color:var(--txt3);font-size:13px;opacity:0;transition:opacity .1s;padding:0 2px;}
+.prob-item:hover .prob-del{opacity:1;}
+
+/* REVIEW */
+.rv-section{margin-bottom:18px;}
+.rv-sec-label{font-size:10px;font-weight:600;color:var(--acc);letter-spacing:.07em;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
+.rv-count{font-size:11px;color:var(--txt3);font-weight:400;text-transform:none;letter-spacing:0;}
+.rv-card{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r2);margin-bottom:4px;}
+.rv-card.wrong-card{background:#fff5f5;border-color:#fca5a5;}
+.rv-title{flex:1;font-size:13px;font-weight:500;color:var(--txt);cursor:pointer;}
+.rv-title:hover{color:var(--acc);}
+.rv-actions{display:flex;gap:5px;flex-shrink:0;}
+.rv-btn{font-size:11px;padding:3px 9px;border-radius:4px;border:none;cursor:pointer;font-family:inherit;font-weight:500;}
+.rv-btn.ok{background:var(--acc-light);color:var(--acc);}
+.rv-btn.ok:hover{background:var(--acc);color:white;}
+.rv-btn.fail{background:#fee2e2;color:#991b1b;}
+.rv-btn.fail:hover{background:#e24b4a;color:white;}
+.rv-btn.retry{background:var(--med);color:var(--med-t);}
+.rv-btn.retry:hover{background:#f59e0b;color:white;}
+
+/* DETAIL */
+.detail-panel{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;margin-top:14px;}
+.detail-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.detail-title{font-size:15px;font-weight:600;color:var(--txt);flex:1;line-height:1.3;}
+.detail-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.detail-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;}
+.dstat{background:var(--bg3);border-radius:var(--r2);padding:8px 10px;text-align:center;}
+.dstat-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--txt);line-height:1;}
+.dstat-lbl{font-size:10px;color:var(--txt3);margin-top:3px;}
+.note-label{font-size:11px;font-weight:600;color:var(--txt2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+.note-ta{width:100%;height:120px;background:var(--bg);border:1px solid var(--bdr2);border-radius:var(--r2);padding:9px 11px;font-size:13px;color:var(--txt);line-height:1.6;resize:vertical;outline:none;font-family:inherit;}
+.note-ta:focus{border-color:var(--acc);}
+.note-foot{display:flex;justify-content:flex-end;gap:7px;margin-top:8px;align-items:center;}
+.note-saved{font-size:11px;color:var(--acc);opacity:0;transition:opacity .3s;}
+.note-save{background:var(--acc);border:none;border-radius:var(--r2);padding:5px 15px;font-size:12px;color:white;cursor:pointer;font-family:inherit;}
+.tag-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:#1e3a5f;color:#93c5fd;font-weight:500;}
+.close-detail{background:none;border:none;cursor:pointer;color:var(--txt3);font-size:18px;line-height:1;padding:0 2px;flex-shrink:0;}
+.solve-row{display:flex;gap:6px;margin-bottom:14px;}
+.solve-btn{border:none;border-radius:var(--r2);padding:6px 14px;font-size:12px;color:white;cursor:pointer;font-family:inherit;font-weight:500;}
+.solve-btn.ok{background:var(--acc);}
+.solve-btn.ok:hover{background:var(--acc2);}
+.solve-btn.fail{background:#e24b4a;}
+.solve-btn.fail:hover{background:#c0392b;}
+.empty{text-align:center;padding:28px 0;color:var(--txt3);font-size:13px;line-height:1.7;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-title">// CODING REVIEW QUEUE</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">전체 문제</div></div>
+    <div class="stat-div"></div>
+    <div class="stat"><div class="stat-val" id="st-today">0</div><div class="stat-lbl">오늘 복습</div></div>
+    <div class="stat-div"></div>
+    <div class="stat"><div class="stat-val" id="st-wrong">0</div><div class="stat-lbl">틀린 문제</div></div>
+    <div class="stat-div"></div>
+    <div class="stat"><div class="stat-val" id="st-acc">–</div><div class="stat-lbl">정답률</div></div>
+  </div>
+  <div class="top-right">
+    <button class="settings-btn" onclick="toggleSettings()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2.5" stroke="white" stroke-width="1.3"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.5 2.5l1 1M10.5 10.5l1 1M11.5 2.5l-1 1M3.5 10.5l-1 1" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>
+      설정
+    </button>
+  </div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-inner">
+    <div class="settings-grid">
+
+      <!-- Category settings -->
+      <div class="settings-section">
+        <div class="settings-section-title">
+          <span class="st-dot" style="background:var(--acc);"></span>카테고리 관리
+        </div>
+        <div class="cat-edit-list" id="cat-edit-list"></div>
+        <div class="color-picker-row" id="color-picker"></div>
+        <div class="add-cat-row">
+          <input id="newcat-input" type="text" placeholder="카테고리 이름" onkeydown="if(event.key==='Enter')addCat()">
+          <button class="add-btn-sm" onclick="addCat()">추가</button>
+        </div>
+      </div>
+
+      <!-- Tag settings -->
+      <div class="settings-section">
+        <div class="settings-section-title">
+          <span class="st-dot" style="background:#1e3a5f;"></span>유형 태그 관리
+        </div>
+        <div class="tag-edit-list" id="tag-edit-list"></div>
+        <div class="add-cat-row">
+          <input id="newtag-input" type="text" placeholder="태그 이름 (예: 세그먼트 트리)" onkeydown="if(event.key==='Enter')addTag()">
+          <button class="add-btn-sm" onclick="addTag()">추가</button>
+        </div>
+      </div>
+
+    </div>
+    <button class="settings-close" onclick="toggleSettings()">닫기</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- LEFT -->
+  <div class="col">
+    <div class="col-label"><span class="col-dot"></span>문제 목록</div>
+    <div class="add-wrap">
+      <div class="add-row">
+        <input class="inp" id="p-num" type="text" placeholder="번호 (예: BOJ 1463)" style="max-width:150px;" onkeydown="if(event.key==='Enter')addProb()">
+        <input class="inp" id="p-title" type="text" placeholder="문제 제목" onkeydown="if(event.key==='Enter')addProb()">
+      </div>
+      <div class="add-row">
+        <select class="sel" id="p-diff">
+          <option value="easy">쉬움</option>
+          <option value="med" selected>보통</option>
+          <option value="hard">어려움</option>
+        </select>
+        <select class="sel" id="p-cat">
+          <option value="">카테고리 없음</option>
+        </select>
+        <button class="add-btn" onclick="addProb()">+ 추가</button>
+      </div>
+      <div class="add-row" style="margin-bottom:0;">
+        <div class="chips-row" id="tag-chips" style="flex:1;"></div>
+      </div>
+    </div>
+    <div class="fbar" id="fbar"></div>
+    <div id="prob-list"></div>
+    <div id="detail-wrap"></div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="col">
+    <div class="col-label"><span class="col-dot"></span>오늘 복습 큐</div>
+    <div id="review-queue"></div>
+    <div style="margin-top:22px;">
+      <div class="col-label"><span class="col-dot red"></span>틀린 문제 모음</div>
+      <div id="wrong-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DIFF_LABEL={easy:'쉬움',med:'보통',hard:'어려움'};
+const INTERVALS=[1,3,7,14,30];
+const PALETTE=[
+  {id:'green', bg:'#dcfce7',text:'#14532d',dot:'#22c55e'},
+  {id:'blue',  bg:'#dbeafe',text:'#1e40af',dot:'#3b82f6'},
+  {id:'purple',bg:'#ede9fe',text:'#5b21b6',dot:'#8b5cf6'},
+  {id:'amber', bg:'#fef3c7',text:'#92400e',dot:'#f59e0b'},
+  {id:'coral', bg:'#fee2d5',text:'#9a3412',dot:'#f97316'},
+  {id:'pink',  bg:'#fce7f3',text:'#9d174d',dot:'#ec4899'},
+  {id:'teal',  bg:'#d1fae5',text:'#065f46',dot:'#10b981'},
+  {id:'red',   bg:'#fee2e2',text:'#991b1b',dot:'#ef4444'},
+];
+const DEFAULT_CATS=[
+  {id:'cat-1',name:'코딩테스트',color:'green'},
+  {id:'cat-2',name:'알고리즘',color:'blue'},
+  {id:'cat-3',name:'자료구조',color:'purple'},
+];
+const DEFAULT_TAGS=['DP','그래프','BFS/DFS','이분탐색','구현','그리디','정렬','스택/큐','트리','투포인터'];
+
+const g=k=>{try{return localStorage.getItem(k);}catch(e){return null;}};
+const s=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
+const loadProbs=()=>{const v=g('crq2:probs');return v?JSON.parse(v):[];};
+const saveProbs=()=>s('crq2:probs',JSON.stringify(probs));
+const loadCats=()=>{const v=g('crq2:cats');return v?JSON.parse(v):[...DEFAULT_CATS];};
+const saveCats=()=>s('crq2:cats',JSON.stringify(cats));
+const loadTags=()=>{const v=g('crq2:tags');return v?JSON.parse(v):[...DEFAULT_TAGS];};
+const saveTags=()=>s('crq2:tags',JSON.stringify(tags));
+const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const today=()=>fmt(new Date());
+const addDays=(ds,n)=>{const d=new Date(ds);d.setDate(d.getDate()+n);return fmt(d);};
+const getPalette=cid=>PALETTE.find(p=>p.id===cid)||PALETTE[0];
+
+let probs=loadProbs(), cats=loadCats(), tags=loadTags();
+let selTags=[], filterDiff='all', filterCatId=null, filterWrong=false, selProbId=null;
+let newCatColor=PALETTE[0].id;
+
+// ---- SETTINGS ----
+function toggleSettings(){
+  const p=document.getElementById('settings-panel');
+  p.style.display=p.style.display==='block'?'none':'block';
+  if(p.style.display==='block'){renderCatEditList();renderTagEditList();renderColorPicker();}
+}
+
+function renderColorPicker(){
+  document.getElementById('color-picker').innerHTML=PALETTE.map(p=>`
+    <div class="color-swatch${p.id===newCatColor?' sel':''}" style="background:${p.dot};" onclick="selColor('${p.id}')" title="${p.id}"></div>`).join('');
+}
+function selColor(id){newCatColor=id;renderColorPicker();}
+
+function renderCatEditList(){
+  const el=document.getElementById('cat-edit-list');
+  if(!cats.length){el.innerHTML=`<div style="font-size:12px;color:var(--txt3);padding:6px 0;">카테고리 없음</div>`;return;}
+  el.innerHTML=cats.map(c=>{
+    const pal=getPalette(c.color);
+    return `<div class="cat-edit-item">
+      <span class="cat-color-dot" style="background:${pal.dot};"></span>
+      <span class="cat-edit-name">${c.name}</span>
+      <button class="cat-edit-del" onclick="delCat('${c.id}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+function addCat(){
+  const name=document.getElementById('newcat-input').value.trim();
+  if(!name)return;
+  cats.push({id:`cat-${Date.now()}`,name,color:newCatColor});
+  saveCats();document.getElementById('newcat-input').value='';
+  renderCatEditList();renderCatSelect();renderFbar();
+}
+function delCat(id){
+  cats=cats.filter(c=>c.id!==id);
+  probs.forEach(p=>{if(p.catId===id)p.catId=null;});
+  saveProbs();saveCats();
+  if(filterCatId===id)filterCatId=null;
+  renderCatEditList();renderCatSelect();renderFbar();renderProbList();
+}
+
+function renderTagEditList(){
+  const el=document.getElementById('tag-edit-list');
+  if(!tags.length){el.innerHTML=`<div style="font-size:12px;color:var(--txt3);padding:6px 0;">태그 없음</div>`;return;}
+  el.innerHTML=tags.map(t=>`
+    <span class="tag-edit-pill">${t}
+      <button class="tag-edit-del" onclick="delTag('${t}')">×</button>
+    </span>`).join('');
+}
+function addTag(){
+  const name=document.getElementById('newtag-input').value.trim();
+  if(!name||tags.includes(name))return;
+  tags.push(name);saveTags();
+  document.getElementById('newtag-input').value='';
+  renderTagEditList();renderTagChips();
+}
+function delTag(t){
+  tags=tags.filter(x=>x!==t);
+  selTags=selTags.filter(x=>x!==t);
+  saveTags();renderTagEditList();renderTagChips();
+}
+
+// ---- RENDER ----
+function renderCatSelect(){
+  const sel=document.getElementById('p-cat');
+  sel.innerHTML=`<option value="">카테고리 없음</option>`+
+    cats.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function renderTagChips(){
+  document.getElementById('tag-chips').innerHTML=tags.map(t=>{
+    const sel=selTags.includes(t);
+    return `<span class="chip${sel?' sel':''}" onclick="toggleTag('${t}')" style="${sel?'background:#1e3a5f;color:#93c5fd;border-color:#1e3a5f;':''}">${t}</span>`;
+  }).join('');
+}
+function toggleTag(t){selTags=selTags.includes(t)?selTags.filter(x=>x!==t):[...selTags,t];renderTagChips();}
+
+function renderFbar(){
+  let h=`<span class="fchip${!filterCatId&&filterDiff==='all'&&!filterWrong?' on':''}" onclick="clearFilters()">전체</span>`;
+  h+=`<span class="fbar-div"></span>`;
+  h+=['easy','med','hard'].map(d=>`
+    <span class="fchip${filterDiff===d?' on':''}" onclick="setFDiff('${d}')" style="${filterDiff===d?`background:var(--${d});color:var(--${d}-t);border-color:transparent;`:''}">
+      ${DIFF_LABEL[d]}
+    </span>`).join('');
+  if(cats.length){
+    h+=`<span class="fbar-div"></span>`;
+    h+=cats.map(c=>{
+      const pal=getPalette(c.color),on=filterCatId===c.id;
+      return `<span class="fchip${on?' on':''}" onclick="setFCat('${c.id}')" style="${on?`background:${pal.bg};color:${pal.text};border-color:${pal.bg};`:''}">${c.name}</span>`;
+    }).join('');
+  }
+  h+=`<span class="fbar-div"></span>`;
+  h+=`<span class="fchip${filterWrong?' on':''}" style="${filterWrong?'background:#fee2e2;color:#991b1b;border-color:transparent;':''}" onclick="toggleFWrong()">틀린 문제만</span>`;
+  document.getElementById('fbar').innerHTML=h;
+}
+function clearFilters(){filterDiff='all';filterCatId=null;filterWrong=false;renderFbar();renderProbList();}
+function setFDiff(d){filterDiff=d;filterCatId=null;filterWrong=false;renderFbar();renderProbList();}
+function setFCat(id){filterCatId=filterCatId===id?null:id;renderFbar();renderProbList();}
+function toggleFWrong(){filterWrong=!filterWrong;renderFbar();renderProbList();}
+
+function renderProbList(){
+  const list=document.getElementById('prob-list');
+  let arr=[...probs];
+  if(filterDiff!=='all')arr=arr.filter(p=>p.diff===filterDiff);
+  if(filterCatId)arr=arr.filter(p=>p.catId===filterCatId);
+  if(filterWrong)arr=arr.filter(p=>p.wrong);
+  if(!arr.length){list.innerHTML=`<div class="empty">문제가 없어요<br><span style="font-size:11px;">위에서 추가해보세요</span></div>`;updateStats();return;}
+  list.innerHTML=arr.map(p=>{
+    const acc=p.solves>0?Math.round(p.correct/p.solves*100):null;
+    const cat=cats.find(c=>c.id===p.catId),pal=cat?getPalette(cat.color):null;
+    const isSel=p.id===selProbId;
+    return `<div class="prob-item${isSel?' selected':''}" onclick="selectProb('${p.id}')">
+      <span class="prob-num">${p.num||'–'}</span>
+      <span class="prob-title">${p.title}</span>
+      ${p.wrong?`<span class="wrong-badge">틀림</span>`:''}
+      ${cat?`<span class="cat-badge" style="background:${pal.bg};color:${pal.text};">${cat.name}</span>`:''}
+      <span class="diff-badge diff-${p.diff}">${DIFF_LABEL[p.diff]}</span>
+      <span class="acc-txt">${acc!==null?acc+'%':''}</span>
+      <button class="prob-del" onclick="event.stopPropagation();delProb('${p.id}')">×</button>
+    </div>`;
+  }).join('');
+  updateStats();
+}
+
+function addProb(){
+  const title=document.getElementById('p-title').value.trim();if(!title)return;
+  const num=document.getElementById('p-num').value.trim();
+  const diff=document.getElementById('p-diff').value;
+  const catId=document.getElementById('p-cat').value||null;
+  probs.push({id:`p-${Date.now()}`,title,num,diff,catId,tags:[...selTags],solves:0,correct:0,wrong:false,nextReview:null,reviewHistory:[],note:''});
+  saveProbs();
+  document.getElementById('p-title').value='';document.getElementById('p-num').value='';
+  selTags=[];renderTagChips();
+  renderProbList();renderReviewQueue();renderWrongList();
+}
+function delProb(id){
+  probs=probs.filter(p=>p.id!==id);
+  if(selProbId===id){selProbId=null;document.getElementById('detail-wrap').innerHTML='';}
+  saveProbs();renderProbList();renderReviewQueue();renderWrongList();
+}
+function selectProb(id){selProbId=selProbId===id?null:id;renderProbList();renderDetailPanel();}
+
+function renderDetailPanel(){
+  const wrap=document.getElementById('detail-wrap');
+  if(!selProbId){wrap.innerHTML='';return;}
+  const p=probs.find(x=>x.id===selProbId);if(!p){wrap.innerHTML='';return;}
+  const acc=p.solves>0?Math.round(p.correct/p.solves*100):0;
+  const cat=cats.find(c=>c.id===p.catId),pal=cat?getPalette(cat.color):null;
+  wrap.innerHTML=`
+    <div class="detail-panel">
+      <div class="detail-hdr">
+        <div>
+          ${p.num?`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt3);margin-bottom:3px;">${p.num}</div>`:''}
+          <div class="detail-title">${p.title}</div>
+        </div>
+        <button class="close-detail" onclick="selectProb('${p.id}')">×</button>
+      </div>
+      <div class="detail-meta">
+        <span class="diff-badge diff-${p.diff}">${DIFF_LABEL[p.diff]}</span>
+        ${cat?`<span class="cat-badge" style="background:${pal.bg};color:${pal.text};">${cat.name}</span>`:''}
+        ${p.tags.map(t=>`<span class="tag-badge">${t}</span>`).join('')}
+      </div>
+      <div class="detail-stats">
+        <div class="dstat"><div class="dstat-val">${p.solves}</div><div class="dstat-lbl">풀이 횟수</div></div>
+        <div class="dstat"><div class="dstat-val">${p.correct}</div><div class="dstat-lbl">정답</div></div>
+        <div class="dstat"><div class="dstat-val">${p.solves>0?acc+'%':'–'}</div><div class="dstat-lbl">정답률</div></div>
+      </div>
+      ${p.nextReview?`<div style="font-size:11px;color:var(--txt3);margin-bottom:10px;">다음 복습: <strong style="color:var(--acc);">${p.nextReview}</strong></div>`:''}
+      <div class="solve-row">
+        <button class="solve-btn ok" onclick="markSolve('${p.id}',true)">✓ 정답으로 기록</button>
+        <button class="solve-btn fail" onclick="markSolve('${p.id}',false)">✗ 오답으로 기록</button>
+      </div>
+      <div class="note-label">풀이 노트</div>
+      <textarea class="note-ta" id="note-ta-${p.id}" placeholder="접근법, 시간복잡도, 핵심 아이디어...">${p.note||''}</textarea>
+      <div class="note-foot">
+        <span class="note-saved" id="note-saved-${p.id}">저장됨</span>
+        <button class="note-save" onclick="saveNote('${p.id}')">저장</button>
+      </div>
+    </div>`;
+}
+
+function markSolve(id, correct){
+  const p=probs.find(x=>x.id===id);if(!p)return;
+  p.solves++;if(correct)p.correct++;p.wrong=!correct;
+  const stage=Math.min((p.reviewHistory||[]).length, INTERVALS.length-1);
+  p.nextReview=addDays(today(), correct?INTERVALS[stage]:1);
+  p.reviewHistory=[...(p.reviewHistory||[]),{date:today(),correct}];
+  saveProbs();renderProbList();renderDetailPanel();renderReviewQueue();renderWrongList();updateStats();
+}
+
+function saveNote(id){
+  const p=probs.find(x=>x.id===id);if(!p)return;
+  p.note=document.getElementById(`note-ta-${id}`).value;saveProbs();
+  const el=document.getElementById(`note-saved-${id}`);el.style.opacity='1';
+  setTimeout(()=>{el.style.opacity='0';},1600);
+}
+
+function rvCard(p){
+  const cat=cats.find(c=>c.id===p.catId),pal=cat?getPalette(cat.color):null;
+  return `<div class="rv-card${p.wrong?' wrong-card':''}">
+    ${cat?`<span class="cat-badge" style="background:${pal.bg};color:${pal.text};">${cat.name}</span>`:''}
+    <span class="diff-badge diff-${p.diff}">${DIFF_LABEL[p.diff]}</span>
+    <span class="rv-title" onclick="selectProb('${p.id}')">${p.title}</span>
+    ${p.wrong?`<span class="wrong-badge">틀림</span>`:''}
+    <div class="rv-actions">
+      <button class="rv-btn ok" onclick="markSolve('${p.id}',true)">✓ 정답</button>
+      <button class="rv-btn fail" onclick="markSolve('${p.id}',false)">✗ 오답</button>
+    </div>
+  </div>`;
+}
+
+function renderReviewQueue(){
+  const td=today();
+  const due=probs.filter(p=>p.nextReview&&p.nextReview<=td);
+  const el=document.getElementById('review-queue');
+  if(!due.length){el.innerHTML=`<div class="empty">오늘 복습할 문제가 없어요<br><span style="font-size:11px;">문제를 풀면 복습 일정이 자동으로 잡혀요</span></div>`;updateStats();return;}
+  const overdue=due.filter(p=>p.nextReview<td).sort((a,b)=>a.nextReview.localeCompare(b.nextReview));
+  const dueToday=due.filter(p=>p.nextReview===td);
+  let html='';
+  if(overdue.length) html+=`<div class="rv-section"><div class="rv-sec-label">밀린 복습 <span class="rv-count">${overdue.length}개</span></div>${overdue.map(rvCard).join('')}</div>`;
+  if(dueToday.length) html+=`<div class="rv-section"><div class="rv-sec-label">오늘 복습 <span class="rv-count">${dueToday.length}개</span></div>${dueToday.map(rvCard).join('')}</div>`;
+  el.innerHTML=html;updateStats();
+}
+
+function renderWrongList(){
+  const wrong=probs.filter(p=>p.wrong);
+  const el=document.getElementById('wrong-list');
+  if(!wrong.length){el.innerHTML=`<div class="empty" style="padding:14px 0;">틀린 문제가 없어요</div>`;return;}
+  const cat=(p)=>cats.find(c=>c.id===p.catId);
+  el.innerHTML=wrong.map(p=>{
+    const c=cat(p),pal=c?getPalette(c.color):null;
+    return `<div class="rv-card wrong-card">
+      ${c?`<span class="cat-badge" style="background:${pal.bg};color:${pal.text};">${c.name}</span>`:''}
+      <span class="diff-badge diff-${p.diff}">${DIFF_LABEL[p.diff]}</span>
+      <span class="rv-title" onclick="selectProb('${p.id}')">${p.title}</span>
+      <div class="rv-actions">
+        <button class="rv-btn retry" onclick="markSolve('${p.id}',true)">재도전 ✓</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats(){
+  document.getElementById('st-total').textContent=probs.length;
+  const td=today();
+  document.getElementById('st-today').textContent=probs.filter(p=>p.nextReview&&p.nextReview<=td).length;
+  document.getElementById('st-wrong').textContent=probs.filter(p=>p.wrong).length;
+  const ts=probs.reduce((a,p)=>a+p.solves,0),tc=probs.reduce((a,p)=>a+p.correct,0);
+  document.getElementById('st-acc').textContent=ts>0?Math.round(tc/ts*100)+'%':'–';
+}
+
+function init(){
+  renderCatSelect();renderTagChips();renderFbar();renderProbList();renderReviewQueue();renderWrongList();
+}
+init();
+</script>
+</body>
+</html>
